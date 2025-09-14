@@ -1,4 +1,3 @@
-
 name: DevSecOps CI/CD
 
 on:
@@ -31,7 +30,7 @@ jobs:
 
       - name: Software Composition Analysis (pip-audit)
         run: |
-          pip-audit -r requirements.txt || true
+          if [ -f requirements.txt ]; then pip-audit -r requirements.txt || true; else echo "No requirements.txt found"; fi
         # Remove '|| true' to fail on vulnerabilities.
 
       - name: Static Analysis (Bandit)
@@ -40,6 +39,8 @@ jobs:
         # Remove '|| true' to fail on HIGH severity findings.
 
       - name: Unit Tests (pytest)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest -q
 
@@ -85,7 +86,7 @@ jobs:
 
   dast_zap:
     name: DAST with OWASP ZAP Baseline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-lest
     needs: container_build_trivy
     steps:
       - name: Checkout
